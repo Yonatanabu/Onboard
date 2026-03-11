@@ -50,11 +50,16 @@ export const Button: React.FC<ButtonProps> = ({
   );
 };
 
-export const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <div className={`bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden ${className}`}>
-    {children}
-  </div>
-);
+export const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => {
+  const hasCustomBackground = /(^|\s)(dark:)?bg-/.test(className);
+  const backgroundClasses = hasCustomBackground ? '' : 'bg-white dark:bg-slate-900';
+
+  return (
+    <div className={`rounded-2xl border border-slate-200 shadow-sm overflow-hidden dark:border-slate-800 ${backgroundClasses} ${className}`}>
+      {children}
+    </div>
+  );
+};
 
 export const Badge: React.FC<{ children: React.ReactNode; variant?: 'success' | 'warning' | 'danger' | 'info' }> = ({ children, variant = 'info' }) => {
   const styles = {

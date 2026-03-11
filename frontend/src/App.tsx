@@ -17,6 +17,19 @@ import { authenticateUser, getCurrentUser, logout, submitSignupRequest, getUnrea
 import AnnouncementsPage from './components/AnnouncementsPage';
 import MessagesPage from './components/MessagesPage';
 
+type ThemeMode = 'light' | 'dark';
+
+const getInitialTheme = (): ThemeMode => {
+  if (typeof window === 'undefined') return 'light';
+
+  const stored = window.localStorage.getItem('theme');
+  if (stored === 'light' || stored === 'dark') {
+    return stored;
+  }
+
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
+
 const getHomeRouteByRole = (role: string) => {
   const normalized = String(role || '').toLowerCase();
   if (normalized === 'admin') return '/admin/dashboard';
@@ -213,8 +226,27 @@ const RegisterRoute: React.FC = () => {
  };
 
 const App: React.FC = () => {
+  const [theme, setTheme] = React.useState<ThemeMode>(getInitialTheme);
+
+  React.useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle('dark', theme === 'dark');
+    root.style.colorScheme = theme;
+    window.localStorage.setItem('theme', theme);
+  }, [theme]);
+
   return (
     <ToastProvider>
+      <button
+        type="button"
+        onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+        className="fixed right-4 top-4 z-[70] inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow-lg backdrop-blur transition hover:border-primary hover:text-primary dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-100"
+        aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+      >
+        <span className="material-symbols-outlined text-[20px]">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+      </button>
+
       <Routes>
       <Route path="/" element={<LandingRoute />} />
       <Route path="/login" element={<LoginRoute />} />

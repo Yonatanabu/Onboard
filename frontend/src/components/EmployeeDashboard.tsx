@@ -11,6 +11,7 @@ type Lesson = {
   description: string;
   content: string;
   position: string;
+  url?: string;
 };
 
 type Progress = {
@@ -70,6 +71,14 @@ export const EmployeeDashboard: React.FC = () => {
     if (!currentUser) {
       return;
     }
+    const lesson = lessons.find((l) => l.id === lessonId);
+    if (lesson?.url) {
+      const formattedUrl = (!lesson.url.startsWith('http://') && !lesson.url.startsWith('https://'))
+        ? `https://${lesson.url}`
+        : lesson.url;
+      window.open(formattedUrl, '_blank', 'noopener,noreferrer');
+    }
+
     await completeLesson(currentUser.id, lessonId);
     setProgress(await getLessonProgress(currentUser.id));
   };
@@ -113,9 +122,8 @@ export const EmployeeDashboard: React.FC = () => {
               return (
                 <Card
                   key={lesson.id}
-                  className={`p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                    completed ? '' : index === 0 ? 'border-l-4 border-l-primary' : ''
-                  }`}
+                  className={`p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${completed ? '' : index === 0 ? 'border-l-4 border-l-primary' : ''
+                    }`}
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${completed ? 'bg-primary' : 'bg-primary/20'}`}>
@@ -137,9 +145,18 @@ export const EmployeeDashboard: React.FC = () => {
                       <span className="text-xs font-bold">{completed ? '100%' : '0%'}</span>
                     </div>
                     {completed ? (
-                      <button className="text-xs font-semibold text-primary hover:underline">Review Material</button>
+                      lesson.url ? (
+                        <a href={(!lesson.url.startsWith('http://') && !lesson.url.startsWith('https://')) ? `https://${lesson.url}` : lesson.url} target="_blank" rel="noreferrer" className="text-xs font-semibold text-primary hover:underline">Review Material</a>
+                      ) : (
+                        <button className="text-xs font-semibold text-primary hover:underline">Review Material</button>
+                      )
                     ) : (
-                      <Button size="sm" onClick={() => handleCompleteLesson(lesson.id)}>Complete Lesson</Button>
+                      <div className="flex items-center gap-3 mt-1">
+                        {lesson.url && (
+                          <a href={(!lesson.url.startsWith('http://') && !lesson.url.startsWith('https://')) ? `https://${lesson.url}` : lesson.url} target="_blank" rel="noreferrer" className="text-xs font-semibold text-primary hover:underline">Review Material</a>
+                        )}
+                        <Button size="sm" onClick={() => handleCompleteLesson(lesson.id)}>Complete Lesson</Button>
+                      </div>
                     )}
                   </div>
                 </Card>
@@ -179,25 +196,25 @@ export const EmployeeDashboard: React.FC = () => {
                   ? `${buddy.name} is available to help with onboarding questions. Reach out anytime.`
                   : 'A buddy will be assigned by your admin soon.'}
               </p>
-                  <div className="space-y-3">
-                    <Button
-                      className="w-full"
-                      icon="chat"
-                      onClick={() => {
-                        const buddyId = currentUser?.buddyId;
-                        if (!buddyId) {
-                          setBuddyStatus('No buddy assigned yet.');
-                          return;
-                        }
-                        const role = 'employee';
-                        navigate(`/${role}/messages`);
-                        setTimeout(() => window.dispatchEvent(new CustomEvent('openChat', { detail: { otherId: buddyId } })), 120);
-                      }}
-                    >
-                      Message Buddy
-                    </Button>
-                    <Button variant="outline" className="w-full" icon="calendar_today" onClick={() => setBuddyStatus('Sync request submitted.')}>Schedule Sync</Button>
-                  </div>
+              <div className="space-y-3">
+                <Button
+                  className="w-full"
+                  icon="chat"
+                  onClick={() => {
+                    const buddyId = currentUser?.buddyId;
+                    if (!buddyId) {
+                      setBuddyStatus('No buddy assigned yet.');
+                      return;
+                    }
+                    const role = 'employee';
+                    navigate(`/${role}/messages`);
+                    setTimeout(() => window.dispatchEvent(new CustomEvent('openChat', { detail: { otherId: buddyId } })), 120);
+                  }}
+                >
+                  Message Buddy
+                </Button>
+                <Button variant="outline" className="w-full" icon="calendar_today" onClick={() => setBuddyStatus('Sync request submitted.')}>Schedule Sync</Button>
+              </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-3">{buddyStatus}</p>
             </div>
           </Card>

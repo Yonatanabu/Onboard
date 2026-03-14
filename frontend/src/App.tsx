@@ -42,7 +42,9 @@ const RoleLayout: React.FC<{
   portalLabel: string;
   navItems: Array<{ icon: string; label: string; path: string }>;
   logoutLabel?: string;
-}> = ({ role, portalLabel, navItems, logoutLabel = 'Logout' }) => {
+  theme?: ThemeMode;
+  toggleTheme?: () => void;
+}> = ({ role, portalLabel, navItems, logoutLabel = 'Logout', theme, toggleTheme }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const currentUser = getCurrentUser();
@@ -92,11 +94,10 @@ const RoleLayout: React.FC<{
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`w-full flex items-center ${isSidebarMinimized ? 'justify-center' : 'gap-4'} p-3 rounded-xl transition-all group ${
-                  active
+                className={`w-full flex items-center ${isSidebarMinimized ? 'justify-center' : 'gap-4'} p-3 rounded-xl transition-all group ${active
                     ? 'bg-primary text-slate-900 shadow-lg shadow-primary/20'
                     : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
-                }`}
+                  }`}
               >
                 <span className={`material-symbols-outlined ${active ? 'font-bold' : ''}`}>{item.icon}</span>
                 {!isSidebarMinimized && <span className="font-bold text-sm tracking-tight">{item.label}</span>}
@@ -137,9 +138,20 @@ const RoleLayout: React.FC<{
             </span>
           </div>
           <div className="flex items-center gap-4">
+            {theme && toggleTheme && (
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="relative material-symbols-outlined p-2 text-slate-400 hover:text-primary transition-colors"
+                aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+              </button>
+            )}
             <button onClick={() => navigate(`/${role}/announcements`)} className="relative material-symbols-outlined p-2 text-slate-400 hover:text-primary transition-colors">
               notifications
-              <span id="annBadge" className="absolute -top-0 -right-0 bg-rose-500 text-white text-[10px] rounded-full px-1" style={{display: 'none'}}>0</span>
+              <span id="annBadge" className="absolute -top-0 -right-0 bg-rose-500 text-white text-[10px] rounded-full px-1" style={{ display: 'none' }}>0</span>
             </button>
             <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-2"></div>
             <div className="flex items-center gap-3">
@@ -211,22 +223,24 @@ const RegisterRoute: React.FC = () => {
     <GetStartedPage
       onBackToHome={() => navigate('/')}
       onGoToLogin={() => navigate('/login')}
-       onCreateAccount={async ({ name, email, password, role, department }) => {
-         try {
-           await submitSignupRequest({ name, email, password, role, department });
-           showToast('Signup request sent to admin for approval. You can sign in after approval.', 'success');
-           navigate('/login');
-         } catch (error) {
-           const message = error instanceof Error ? error.message : 'Signup failed';
-           showToast(message || 'Request failed', 'error');
-         }
-       }}
-     />
-   );
- };
+      onCreateAccount={async ({ name, email, password, role, department }) => {
+        try {
+          await submitSignupRequest({ name, email, password, role, department });
+          showToast('Signup request sent to admin for approval. You can sign in after approval.', 'success');
+          navigate('/login');
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Signup failed';
+          showToast(message || 'Request failed', 'error');
+        }
+      }}
+    />
+  );
+};
 
 const App: React.FC = () => {
   const [theme, setTheme] = React.useState<ThemeMode>(getInitialTheme);
+  const location = useLocation();
+  const isDashboardRoute = /^\/(employee|admin|mentor)/.test(location.pathname);
 
   React.useEffect(() => {
     const root = document.documentElement;
@@ -235,110 +249,120 @@ const App: React.FC = () => {
     window.localStorage.setItem('theme', theme);
   }, [theme]);
 
+  const toggleTheme = () => setTheme((current) => (current === 'dark' ? 'light' : 'dark'));
+
   return (
     <ToastProvider>
-      <button
-        type="button"
-        onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
-        className="fixed right-4 top-4 z-[70] inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow-lg backdrop-blur transition hover:border-primary hover:text-primary dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-100"
-        aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-        title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-      >
-        <span className="material-symbols-outlined text-[20px]">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
-      </button>
+      {!isDashboardRoute && (
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="fixed right-4 top-4 z-[70] inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow-lg backdrop-blur transition hover:border-primary hover:text-primary dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-100"
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          <span className="material-symbols-outlined text-[20px]">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+        </button>
+      )}
 
       <Routes>
-      <Route path="/" element={<LandingRoute />} />
-      <Route path="/login" element={<LoginRoute />} />
-      <Route path="/register" element={<RegisterRoute />} />
+        <Route path="/" element={<LandingRoute />} />
+        <Route path="/login" element={<LoginRoute />} />
+        <Route path="/register" element={<RegisterRoute />} />
 
-      <Route
-        path="/employee"
-        element={
-          <RequireRole role="employee">
-            <RoleLayout
-              role="employee"
-              portalLabel="Employee Portal"
-              navItems={[
-                { icon: 'home', label: 'My Dashboard', path: '/employee/dashboard' },
-                { icon: 'chat', label: 'Messages', path: '/employee/messages' },
-                { icon: 'menu_book', label: 'Resources', path: '/employee/resources' },
-                { icon: 'campaign', label: 'Announcements', path: '/employee/announcements' },
-                { icon: 'smart_toy', label: 'AI Assistant', path: '/employee/ai-assistant' },
-                { icon: 'settings', label: 'Settings', path: '/employee/settings' },
-              ]}
-              logoutLabel="Exit Demo"
-            />
-          </RequireRole>
-        }
-      >
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<EmployeeDashboard />} />
-        <Route path="messages" element={<MessagesPage />} />
-        <Route path="resources" element={<Resources />} />
-        <Route path="announcements" element={<AnnouncementsPage />} />
-        <Route path="ai-assistant" element={<AIChat />} />
-        <Route path="settings" element={<Settings />} />
-      </Route>
+        <Route
+          path="/employee"
+          element={
+            <RequireRole role="employee">
+              <RoleLayout
+                role="employee"
+                portalLabel="Employee Portal"
+                navItems={[
+                  { icon: 'home', label: 'My Dashboard', path: '/employee/dashboard' },
+                  { icon: 'chat', label: 'Messages', path: '/employee/messages' },
+                  { icon: 'menu_book', label: 'Resources', path: '/employee/resources' },
+                  { icon: 'campaign', label: 'Announcements', path: '/employee/announcements' },
+                  { icon: 'smart_toy', label: 'AI Assistant', path: '/employee/ai-assistant' },
+                  { icon: 'settings', label: 'Settings', path: '/employee/settings' },
+                ]}
+                logoutLabel="Log out"
+                theme={theme}
+                toggleTheme={toggleTheme}
+              />
+            </RequireRole>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<EmployeeDashboard />} />
+          <Route path="messages" element={<MessagesPage />} />
+          <Route path="resources" element={<Resources />} />
+          <Route path="announcements" element={<AnnouncementsPage />} />
+          <Route path="ai-assistant" element={<AIChat />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
 
-      <Route
-        path="/admin"
-        element={
-          <RequireRole role="admin">
-            <RoleLayout
-              role="admin"
-              portalLabel="Admin Portal"
-              navItems={[
-                { icon: 'dashboard', label: 'Dashboard', path: '/admin/dashboard' },
-                { icon: 'group', label: 'Buddy Matching', path: '/admin/users' },
-                { icon: 'bar_chart', label: 'Reports', path: '/admin/reports' },
-                { icon: 'menu_book', label: 'Lessons', path: '/admin/resources' },
-                { icon: 'campaign', label: 'Announcements', path: '/admin/announcements' },
-                { icon: 'settings', label: 'Settings', path: '/admin/settings' },
-              ]}
-            />
-          </RequireRole>
-        }
-      >
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<AdminDashboard />} />
-        <Route path="users" element={<BuddyAssignment />} />
-        <Route path="reports" element={<Reports />} />
-        <Route path="resources" element={<LessonManagement />} />
-        <Route path="announcements" element={<AnnouncementsPage />} />
-        <Route path="settings" element={<Settings />} />
-      </Route>
+        <Route
+          path="/admin"
+          element={
+            <RequireRole role="admin">
+              <RoleLayout
+                role="admin"
+                portalLabel="Admin Portal"
+                navItems={[
+                  { icon: 'dashboard', label: 'Dashboard', path: '/admin/dashboard' },
+                  { icon: 'group', label: 'Buddy Matching', path: '/admin/users' },
+                  { icon: 'bar_chart', label: 'Reports', path: '/admin/reports' },
+                  { icon: 'menu_book', label: 'Lessons', path: '/admin/resources' },
+                  { icon: 'campaign', label: 'Announcements', path: '/admin/announcements' },
+                  { icon: 'settings', label: 'Settings', path: '/admin/settings' },
+                ]}
+                theme={theme}
+                toggleTheme={toggleTheme}
+              />
+            </RequireRole>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<BuddyAssignment />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="resources" element={<LessonManagement />} />
+          <Route path="announcements" element={<AnnouncementsPage />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
 
-      <Route
-        path="/mentor"
-        element={
-          <RequireRole role="mentor">
-            <RoleLayout
-              role="mentor"
-              portalLabel="Mentor Portal"
-              navItems={[
-                { icon: 'dashboard', label: 'Dashboard', path: '/mentor/dashboard' },
-                { icon: 'chat', label: 'Messages', path: '/mentor/messages' },
-                { icon: 'groups', label: 'Employees', path: '/mentor/employees' },
-                { icon: 'menu_book', label: 'Resources', path: '/mentor/resources' },
-                { icon: 'campaign', label: 'Announcements', path: '/mentor/announcements' },
-                { icon: 'settings', label: 'Settings', path: '/mentor/settings' },
-              ]}
-            />
-          </RequireRole>
-        }
-      >
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<MentorDashboard />} />
-        <Route path="employees" element={<MentorDashboard />} />
-        <Route path="messages" element={<MessagesPage />} />
-        <Route path="resources" element={<LessonManagement />} />
-        <Route path="announcements" element={<AnnouncementsPage />} />
-        <Route path="settings" element={<Settings />} />
-      </Route>
+        <Route
+          path="/mentor"
+          element={
+            <RequireRole role="mentor">
+              <RoleLayout
+                role="mentor"
+                portalLabel="Mentor Portal"
+                navItems={[
+                  { icon: 'dashboard', label: 'Dashboard', path: '/mentor/dashboard' },
+                  { icon: 'chat', label: 'Messages', path: '/mentor/messages' },
+                  { icon: 'groups', label: 'Employees', path: '/mentor/employees' },
+                  { icon: 'menu_book', label: 'Resources', path: '/mentor/resources' },
+                  { icon: 'campaign', label: 'Announcements', path: '/mentor/announcements' },
+                  { icon: 'settings', label: 'Settings', path: '/mentor/settings' },
+                ]}
+                theme={theme}
+                toggleTheme={toggleTheme}
+              />
+            </RequireRole>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<MentorDashboard />} />
+          <Route path="employees" element={<MentorDashboard />} />
+          <Route path="messages" element={<MessagesPage />} />
+          <Route path="resources" element={<LessonManagement />} />
+          <Route path="announcements" element={<AnnouncementsPage />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
     </ToastProvider>
   );
 };

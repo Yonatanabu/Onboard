@@ -204,14 +204,14 @@ const request = async (path: string, options: { method?: string; body?: any; hea
 	}
 
 	const contentType = response.headers.get('content-type') || '';
-		// if server issued a refreshed access token, persist it immediately
-		const newAccess = response.headers.get('x-access-token');
-		if (newAccess) {
-			const current = getCurrentUser();
-			if (current) {
-				saveCurrentUser({ ...current, token: newAccess });
-			}
+	// if server issued a refreshed access token, persist it immediately
+	const newAccess = response.headers.get('x-access-token');
+	if (newAccess) {
+		const current = getCurrentUser();
+		if (current) {
+			saveCurrentUser({ ...current, token: newAccess });
 		}
+	}
 	return contentType.includes('application/json') ? await response.json() : null;
 };
 
@@ -221,28 +221,28 @@ export const getAllUsers = async () => {
 };
 
 export const authenticateUser = async ({ email, password }: { email: string; password: string }) => {
-  const data = await request('/auth/login', {
-    method: 'POST',
-    body: { email, password },
-  });
+	const data = await request('/auth/login', {
+		method: 'POST',
+		body: { email, password },
+	});
 
-  const normalizedRole = roleFromBackend(data.role, data.isAdmin);
+	const normalizedRole = roleFromBackend(data.role, data.isAdmin);
 
-  const currentUser = {
-    id: data._id,
-    name: data.name,
-    email: data.email,
-    role: normalizedRole,
+	const currentUser = {
+		id: data._id,
+		name: data.name,
+		email: data.email,
+		role: normalizedRole,
 		buddyId: data.buddyUser || null,
-    position: departmentToPosition(data.department, normalizedRole),
+		position: departmentToPosition(data.department, normalizedRole),
 		department: data.department,
-    approved: data.approved ?? true,
-    token: data.token,
-    refreshToken: data.refreshToken,
-  };
+		approved: data.approved ?? true,
+		token: data.token,
+		refreshToken: data.refreshToken,
+	};
 
-  saveCurrentUser(currentUser);
-  return currentUser;
+	saveCurrentUser(currentUser);
+	return currentUser;
 };
 
 export const createUser = async (user: any) => {
@@ -261,14 +261,14 @@ export const createUser = async (user: any) => {
 };
 
 export const submitSignupRequest = async ({ name, email, password, role, department }: { name: string; email: string; password: string; role: string; department?: string }) => {
-  return request('/auth/signup', {
-    method: 'POST',
-    body: {
-      name,
-      email,
-      password,
-      role: roleToBackend(role),
-      department,
+	return request('/auth/signup', {
+		method: 'POST',
+		body: {
+			name,
+			email,
+			password,
+			role: roleToBackend(role),
+			department,
 		},
 	});
 };
@@ -410,6 +410,7 @@ export const getEmployeeLessons = async (userId: string) => {
 			title: it.title || it.name || it.lessonTitle || (it.body ? String(it.body).slice(0, 80) : ''),
 			description: it.description || it.body || '',
 			position: it.position || it.role || '',
+			url: it.url || '',
 			completed: Boolean(it.completed),
 		}));
 	} catch (err) {

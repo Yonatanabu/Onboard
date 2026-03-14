@@ -172,11 +172,10 @@ export const BuddyAssignment: React.FC = () => {
               <button
                 key={mentee.id}
                 onClick={() => setSelectedEmployeeId(mentee.id)}
-                className={`w-full text-left p-4 rounded-lg border transition-colors cursor-pointer group bg-white dark:bg-slate-800/30 ${
-                  selectedEmployeeId === mentee.id
+                className={`w-full text-left p-4 rounded-lg border transition-colors cursor-pointer group bg-white dark:bg-slate-800/30 ${selectedEmployeeId === mentee.id
                     ? 'border-primary'
                     : 'border-slate-200 dark:border-slate-800 hover:border-primary/50'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <img src={avatarFor(mentee.id)} className="size-10 rounded-full object-cover" alt={mentee.name} />
@@ -224,13 +223,12 @@ export const BuddyAssignment: React.FC = () => {
                 <button
                   key={buddy.id}
                   onClick={() => setSelectedBuddyId(buddy.id)}
-                  className={`w-full text-left p-4 rounded-xl border bg-white dark:bg-slate-800 transition-all hover:shadow-md border-l-4 ${
-                    selectedBuddyId === buddy.id
+                  className={`w-full text-left p-4 rounded-xl border bg-white dark:bg-slate-800 transition-all hover:shadow-md border-l-4 ${selectedBuddyId === buddy.id
                       ? 'border-primary border-l-primary'
                       : activeMentees < maxMentees
                         ? 'border-slate-200 dark:border-slate-800 border-l-primary'
                         : 'border-slate-200 dark:border-slate-800 border-l-slate-300 opacity-60'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <div className="relative">
@@ -275,10 +273,6 @@ export const BuddyAssignment: React.FC = () => {
               </div>
               <div>
                 <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100">Draft Assignment: {selectedBuddy?.name || 'Select buddy'} + {selectedEmployee?.name || 'Select hire'}</h4>
-                <div className="flex items-center gap-3 text-sm text-slate-500">
-                  <span className="flex items-center"><span className="material-symbols-outlined text-sm text-primary mr-1">location_on</span>London Office</span>
-                  <span className="flex items-center"><span className="material-symbols-outlined text-sm text-primary mr-1">psychology</span>Matching: Technical & Cultural</span>
-                </div>
               </div>
             </div>
             <div className="flex gap-4">

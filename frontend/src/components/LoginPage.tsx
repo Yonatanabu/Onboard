@@ -107,11 +107,15 @@ export const LoginPage: React.FC<Props> = ({ onBackToHome, onGoToGetStarted, onS
 
             <div className="flex items-center gap-3 text-xs text-slate-400">
               <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-              <span>Or continue with</span>
+              <span>Or log in with</span>
               <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
             </div>
 
-            <Button type="button" variant="outline" className="w-full" onClick={handleSocialSignIn}>Sign in with Google</Button>
+            <div className="grid grid-cols-3 gap-3">
+              <Button type="button" variant="outline" className="w-full text-xs" onClick={() => onSignIn({ email: 'employee@company.com', password: '12345678' })}>Demo Employee</Button>
+              <Button type="button" variant="outline" className="w-full text-xs" onClick={() => onSignIn({ email: 'mentor@company.com', password: '12345678' })}>Demo Mentor</Button>
+              <Button type="button" variant="outline" className="w-full text-xs" onClick={() => onSignIn({ email: 'admin@company.com', password: '12345678' })}>Demo Admin</Button>
+            </div>
 
             <p className="text-center text-sm text-slate-500 dark:text-slate-400">
               Don&apos;t have an account?{' '}

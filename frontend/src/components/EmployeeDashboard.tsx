@@ -137,9 +137,9 @@ export const EmployeeDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-32 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div className="mt-4 flex flex-col items-start gap-3 sm:mt-0 sm:items-end sm:gap-1">
+                    <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
+                      <div className="h-2 w-full max-w-[128px] shrink-0 rounded-full bg-slate-100 overflow-hidden dark:bg-slate-700 sm:w-32">
                         <div className="h-full bg-primary" style={{ width: completed ? '100%' : '0%' }}></div>
                       </div>
                       <span className="text-xs font-bold">{completed ? '100%' : '0%'}</span>
@@ -151,11 +151,11 @@ export const EmployeeDashboard: React.FC = () => {
                         <button className="text-xs font-semibold text-primary hover:underline">Review Material</button>
                       )
                     ) : (
-                      <div className="flex items-center gap-3 mt-1">
+                      <div className="mt-1 flex w-full flex-wrap items-center gap-3 sm:w-auto sm:justify-end">
                         {lesson.url && (
                           <a href={(!lesson.url.startsWith('http://') && !lesson.url.startsWith('https://')) ? `https://${lesson.url}` : lesson.url} target="_blank" rel="noreferrer" className="text-xs font-semibold text-primary hover:underline">Review Material</a>
                         )}
-                        <Button size="sm" onClick={() => handleCompleteLesson(lesson.id)}>Complete Lesson</Button>
+                        <Button size="sm" className="w-full sm:w-auto" onClick={() => handleCompleteLesson(lesson.id)}>Complete Lesson</Button>
                       </div>
                     )}
                   </div>

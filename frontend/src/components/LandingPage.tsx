@@ -32,8 +32,8 @@ export const LandingPage: React.FC<Props> = ({ onGoToLogin, onGoToGetStarted }) 
               </a>
             ))}
           </nav>
-          <div className="flex items-center gap-3">
-            <button onClick={onGoToLogin} className="hidden text-sm font-bold text-slate-700 hover:text-primary md:block dark:text-slate-200">Login</button>
+          <div className="flex items-center gap-3 mr-12 md:mr-0">
+            <button onClick={onGoToLogin} className="text-sm font-bold text-slate-700 hover:text-primary dark:text-slate-200">Login</button>
             <Button onClick={onGoToGetStarted}>Get Started</Button>
           </div>
         </div>
@@ -74,7 +74,7 @@ export const LandingPage: React.FC<Props> = ({ onGoToLogin, onGoToGetStarted }) 
                     </div>
                     <div className="mx-auto text-[10px] font-medium text-slate-400">app.onboardly.com</div>
                   </div>
-                  <img src="/1.png" className="aspect-video w-full object-cover" alt="Onboarding dashboard preview" />
+                  <img src="/1.webp" className="aspect-video w-full object-cover" alt="Onboarding dashboard preview" loading="lazy" />
                 </Card>
               </div>
             </div>

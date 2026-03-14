@@ -19,10 +19,12 @@ connectDB();
 const app = express();
 const http = require('http');
 const { Server } = require('socket.io');
-// Allow requests from the frontend during development. If FRONTEND_URL is set, use it;
-// otherwise allow any origin (reflect) to support ports like 3000, 3001, etc.
+// Allow requests from any frontend origin during development/production,
+// this ensures Vercel domains (which change per deploy) are never blocked.
 app.use(cors({
-  origin: process.env.FRONTEND_URL || true,
+  origin: function (origin, callback) {
+    callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-refresh-token'],
@@ -107,8 +109,11 @@ const server = http.createServer(app);
 // attach socket.io for real-time chat
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || '*',
+    origin: function (origin, callback) {
+      callback(null, true);
+    },
     methods: ['GET', 'POST'],
+    credentials: true,
   },
 });
 
@@ -117,17 +122,17 @@ io.on('connection', (socket) => {
   socket.on('join', (userId) => {
     try {
       if (userId) socket.join(String(userId));
-    } catch (e) {}
+    } catch (e) { }
   });
 
   // allow clients to join arbitrary conversation rooms (e.g. chat:<idA>:<idB>)
   socket.on('joinRoom', (room) => {
     try {
       if (room) socket.join(String(room));
-    } catch (e) {}
+    } catch (e) { }
   });
 
-  socket.on('disconnect', () => {});
+  socket.on('disconnect', () => { });
 });
 
 // expose io globally so controllers can emit events when messages are created

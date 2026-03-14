@@ -387,6 +387,7 @@ const getEmployeeProgress = asyncHandler(async (req, res) => {
       description: lesson.description,
       position: lesson.position,
       role: lesson.role,
+      url: lesson.url,
       targetMentees: lesson.targetMentees || [],
       createdAt: lesson.createdAt,
       completed: completedSet.has(String(lesson._id)),
